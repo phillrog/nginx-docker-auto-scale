@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+     sql-server:
+          image: mcr.microsoft.com/mssql/server
+          container_name: banco
+          ports:
+               - "1433:1433"
+          environment:
+               SA_PASSWORD: "Dockerau#!123"
+               ACCEPT_EULA: "Y"
+          networks: 
+               - rede
+
+     portal1:
+          container_name: app1         
+          hostname: app1
+          build: 
+               dockerfile: portal/Dockerfile
+               context: .
+          networks: 
+               - rede
+
+     portal2:
+          container_name: app2              
+          hostname: app2
+          build: 
+               dockerfile: portal/Dockerfile
+               context: .
+          networks: 
+               - rede
+
+     portal3:
+          container_name: app3
+          hostname: app3
+          build: 
+               dockerfile: portal/Dockerfile
+               context: .
+          networks: 
+               - rede               
+
+     nginx:
+          build:
+               dockerfile: ./config/Dockerfile
+               context: .
+          container_name: api-gateway
+          ports:
+               - "80:80"
+          networks: 
+               - rede
+          depends_on:
+               - "portal1"
+               - "portal2"
+               - "portal3"
+
+networks:
+    rede:    
+        driver: bridge               
